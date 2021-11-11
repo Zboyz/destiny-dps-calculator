@@ -383,7 +383,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     break;
                 case "sleeper-simulant":
                     document.getElementById("reload-stat").value = "52";
-                    document.getElementById("magazine-size").value = "3";
+                    document.getElementById("magazine-size").value = "4";
                     document.getElementById("reserves").value = "13";
                     break;
                 case "queenbreaker":
@@ -452,7 +452,14 @@ window.onerror = function (errorMsg, url, lineNumber) {
 
             if (document.getElementById("vorpal-weapon").checked)
             {
-                values.damagePerShot *= 1.15;
+                if (type.indexOf("gl-lightweight") > -1 || type.indexOf("sniper-") > -1 || type.indexOf("shotgun-") > -1 || type.indexOf("fusion-") > -1)
+                {
+                    values.damagePerShot *= 1.15;
+                }
+                else
+                {
+                    values.damagePerShot *= 1.1;
+                }
             }
 
             if (document.getElementById("firing-line").checked)
@@ -839,7 +846,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 72;
                     break;
                 case "darci":
-                    damagePerShot = 8127;
+                    damagePerShot = 8127 * 1.2; // temporary
                     rateOfFire = 140;
                     break;
                 case "izanagis-burden":
@@ -847,7 +854,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 90;
                     break;
                 case "whisper-of-the-worm":
-                    damagePerShot = 14937;
+                    damagePerShot = 14937 * 1.1; // temporary
                     rateOfFire = 72;
                     break;
                 case "cloudstrike":
@@ -887,15 +894,15 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 140;
                     break;
                 case "linear-fusion":
-                    damagePerShot = 16107;
+                    damagePerShot = 16107 * 1.1; // temporary
                     rateOfFire = 60;
                     break;
                 case "sleeper-simulant":
-                    damagePerShot = 26362;
+                    damagePerShot = 26362 * 1.06 * 1.1; // temporary
                     rateOfFire = 46;
                     break;
                 case "queenbreaker":
-                    damagePerShot = 15353;
+                    damagePerShot = 15353 * 1.1; // temporary
                     rateOfFire = 55;
                     break;
                 case "mg-rapid-fire":
