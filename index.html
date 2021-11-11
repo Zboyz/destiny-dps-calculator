@@ -1,3 +1,1194 @@
+<!DOCTYPE html>
 <html>
-    <div>HELLO WORLD</div>
+<head>
+    <meta charset="UTF-8">
+    <title>Destiny 2 DPS Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+    <style>
+
+        body {
+            /*background-color: black;*/
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        body * {
+            /*color: white;
+            background-color: black;*/
+            font-size: 16px;
+            font-family: sans-serif;
+        }
+
+        select, button, input {
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 15px;
+        }
+
+        select, input {
+            padding: 5px 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <div style="position: fixed; right: 20px;">Current Patch: 3.0.0.1</div>
+    <div style="min-height: 50px;"></div>
+    <span>Weapon Archetype: </span>
+    <select id="weapon-type" onchange="selectWeapon(this.value)">
+        <optgroup label="Fusion Rifles">
+            <option value="fusion-adaptive">Adaptive Fusion Rifle</option>
+            <option value="fusion-precision">Precision Fusion Rifle</option>
+            <option value="fusion-high-impact">High Impact Fusion Rifle</option>
+            <option value="fusion-rapid-fire">Rapid Fire Fusion Rifle</option>
+            <option value="one-thousand-voices">One Thousand Voices</option>
+        </optgroup>
+        <optgroup label="Shotguns">
+            <!--option value="shotgun-rapid-fire">Rapid Fire Shotgun</option-->
+            <!--option value="shotgun-lightweight">Lightweight Shotgun</option-->
+            <option value="shotgun-precision">Precision Shotgun</option>
+            <option value="shotgun-slug">Slug Shotgun</option>
+            <option value="shotgun-aggressive">Aggressive Shotgun</option>
+            <option value="lord-of-wolves">Lord Of Wolves</option>
+            <option value="lord-of-wolves-released">Lord Of Wolves (Released)</option>
+            <option value="fourth-horseman">Fourth Horseman</option>
+            <option value="legend-of-acrius">Legend of Acrius</option>
+        </optgroup>
+        <optgroup label="Sniper Rifles">
+            <option value="sniper-aggressive">Aggressive Sniper</option>
+            <option value="sniper-adaptive">Adaptive Sniper</option>
+            <option value="sniper-rapid-fire">Rapid Fire Sniper</option>
+            <option value="darci">DARCI</option>
+            <option value="cloudstrike">Cloudstrike</option>
+            <option value="izanagis-burden">Izanagi's Burden</option>
+            <option value="whisper-of-the-worm">Whisper of the Worm</option>
+        </optgroup>
+        <optgroup label="Grenade Launchers">
+            <option value="gl-lightweight">Lightweight Grenade Launcher</option>
+            <option value="gl-wave">Wave Grenade Launcher (currently not working)</option>
+            <option value="gl-adaptive">Adaptive Grenade Launcher</option>
+            <option value="gl-precision">Precision Grenade Launcher</option>
+            <option value="gl-rapid-fire">Rapid Fire Grenade Launcher</option>
+            <option value="prospector">Prospector</option>
+            <option value="colony">The Colony</option>
+        </optgroup>
+        <optgroup label="Linear Fusion Rifles">
+            <option value="linear-fusion">Precision Linear Fusion</option>
+            <option value="sleeper-simulant">Sleeper Simulant</option>
+            <option value="queenbreaker">The Queenbreaker</option>
+        </optgroup>
+        <optgroup label="Machine Guns">
+            <option value="mg-high-impact">High Impact Machine Gun</option>
+            <option value="mg-adaptive">Adaptive Machine Gun</option>
+            <option value="mg-rapid-fire">Rapid Fire Machine Gun</option>
+            <option value="xenophage" selected>Xenophage</option>
+            <option value="heir-apparent">Heir Apparent</option>
+        </optgroup>
+        <optgroup label="Rocket Launchers">
+            <option value="rocket-adaptive">Adaptive Rocket Launcher</option>
+            <option value="rocket-aggressive">Aggressive Rocket Launcher</option>
+            <option value="rocket-high-impact">High Impact Rocket Launcher</option>
+            <option value="rocket-hakke">Hakke Rocket Launcher</option>
+            <option value="wardcliff-coil">Wardcliff Coil</option>
+            <option value="eyes-of-tomorrow">Eyes of Tomorrow</option>
+            <option value="truth">Truth</option>
+            <option value="two-tailed-fox">Two-Tailed Fox</option>
+            <option value="deathbringer">Deathbringer</option>
+        </optgroup>
+        <optgroup label="Swords">
+            <option value="sword-adaptive">Adaptive Sword</option>
+            <option value="sword-vortex">Vortex Sword</option>
+            <option value="sword-caster">Caster Sword</option>
+            <option value="sword-lightweight">Lightweight Sword</option>
+            <option value="sword-aggressive">Aggressive Sword</option>
+            <option value="lament">Lament</option>
+        </optgroup>
+        <optgroup label="Bows">
+            <option value="leviathans-breath">Leviathan's Breath</option>
+        </optgroup>
+    </select>
+    <br/>
+    <br/>
+    <span>Reload Stat: </span>
+    <input type="number" id="reload-stat">
+    <br/>
+    <br/>
+    <span>Magazine Size: </span>
+    <input type="number" id="magazine-size">
+    <br/>
+    <br/>
+    <span>Reserves: </span>
+    <input type="number" id="reserves">
+    <br/>
+    <br/>
+    <input type="checkbox" id="lunafaction-boots">
+    <span>Lunafaction Boots / Rally Barricade</span>
+    <br/>
+    <input type="checkbox" id="field-prep" style="display: none;" disabled>
+    <span style="display: none;">Field Prep</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="single-loader-mod">
+    <span>Single Loader Mod</span>
+    <br/>
+    <input type="checkbox" id="double-loader-mod">
+    <span>Double Loader Mod</span>
+    <br/>
+    <input type="checkbox" id="clown-cartridge" style="display: none;" disabled>
+    <span style="display: none;">Clown Cartridge</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="actium-war-rig" style="display: none;" disabled>
+    <span style="display: none;">Actium War Rig</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="triple-tap" style="display: none;" disabled>
+    <span style="display: none;">Triple Tap</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="alloy-mag" style="display: none;" disabled>
+    <span style="display: none;">Alloy Mag</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="fourth-times-the-charm" style="display: none;" disabled>
+    <span style="display: none;">Fourth Times The Charm</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="boss-spec" style="display: none;" disabled>
+    <span style="display: none;">Boss Spec</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="kinetic" style="display: none;" disabled>
+    <span style="display: none;">Kinetic</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="spike-grenades" style="display: none;" disabled>
+    <span style="display: none;">Spike Grenades</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="vorpal-weapon" style="display: none;" disabled>
+    <span style="display: none;">Vorpal Weapon</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="firing-line" style="display: none;" disabled>
+    <span style="display: none;">Firing Line</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="whirlwind-blade" style="display: none;" disabled>
+    <span style="display: none;">Whirlwind Blade</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="full-auto" style="display: none;" disabled>
+    <span style="display: none;">Full Auto</span>
+    <br style="display: none;"/>
+    <input type="checkbox" id="full-court" style="display: none;" disabled>
+    <span style="display: none;">Full Court (metres) </span>
+    <input type="number" id="full-court-distance" style="display: none;">
+    <br style="display: none;"/>
+    <br/>
+    <button onclick="update()">Update</button>
+    <br/>
+    <br/>
+    <span>Reload Speed: </span>
+    <span id="reload-speed"></span>
+    <br/>
+    <br/>
+    <span>Total Damage Only Full Magazines: </span>
+    <span id="total-damage-partial"></span>
+    <br/>
+    <br/>
+    <span>Total Damage All Reserves: </span>
+    <span id="total-damage-full"></span>
+    <br/>
+    <br/>
+    <span>Time to Empty Only Full Magazines: </span>
+    <span id="time-to-empty-partial"></span>
+    <br/>
+    <br/>
+    <span>Time to Empty All Reserves: </span>
+    <span id="time-to-empty-full"></span>
+    <br/>
+    <br/>
+    <span>Burst DPS: </span>
+    <span id="burst-dps"></span>
+    <br/>
+    <br/>
+    <span>Sustained DPS: </span>
+    <span id="sustained-dps"></span>
+    <br/>
+    <br/>
+    <canvas id="myChart" width="400" height="400"></canvas>
+    <script type="text/javascript">
+
+window.onerror = function (errorMsg, url, lineNumber) {
+    alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
+}
+
+        selectWeapon("xenophage");
+
+        function selectWeapon(type) // need to add legendary cases
+        {
+            document.querySelectorAll("input[type=checkbox]").forEach(function(el){
+                disableElement(el);
+            });
+            enableElement(document.getElementById("lunafaction-boots"));
+            enableElement(document.getElementById("single-loader-mod"));
+            enableElement(document.getElementById("double-loader-mod"));
+            switch(type)
+            {
+                case "fusion-adaptive":
+                case "fusion-rapid-fire":
+                case "fusion-high-impact":
+                case "fusion-aggressive":
+                case "fusion-precision":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("boss-spec"));
+                    break;
+                case "shotgun-lightweight":
+                case "shotgun-rapid-fire":
+                case "shotgun-aggressive":
+                case "shotgun-precision":
+                case "shotgun-slug":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("kinetic"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("full-auto"));
+                    break;
+                case "sniper-adaptive":
+                case "sniper-aggressive":
+                case "sniper-rapid-fire":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("kinetic"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("triple-tap"));
+                    enableElement(document.getElementById("fourth-times-the-charm"));
+                    enableElement(document.getElementById("firing-line"));
+                    enableElement(document.getElementById("clown-cartridge"));
+                    break;
+                case "gl-wave":
+                case "gl-lightweight":
+                    //may want kinetic? not sure what the values are now, will need to disable after somehow
+                case "gl-adaptive":
+                case "gl-rapid-fire":
+                case "gl-precision":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("spike-grenades"));
+                    enableElement(document.getElementById("full-court"));
+                    enableElement(document.getElementById("clown-cartridge"));
+                    enableElement(document.getElementById("boss-spec"));
+                    break;
+                case "linear-fusion":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("clown-cartridge"));
+                    enableElement(document.getElementById("firing-line"));
+                    enableElement(document.getElementById("triple-tap"));
+                    break;
+                case "mg-adaptive":
+                case "mg-high-impact":
+                case "mg-rapid-fire":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("clown-cartridge"));
+                    break;
+                case "rocket-high-impact":
+                case "rocket-hakke":
+                case "rocket-adaptive":
+                case "rocket-aggressive":
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("clown-cartridge"));
+                    document.getElementById("magazine-size").value = "1";
+                    break;
+                case "sword-adaptive":
+                case "sword-vortex":
+                case "sword-caster":
+                case "sword-aggressive":
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("boss-spec"));
+                    enableElement(document.getElementById("whirlwind-blade"));
+                case "sword-lightweight":
+                    document.getElementById("reload-stat").value = "1";
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "55";
+                    break;
+                case "cloudstrike":
+                    enableElement(document.getElementById("alloy-mag"));
+                    document.getElementById("reload-stat").value = "46";
+                    document.getElementById("magazine-size").value = "7";
+                    document.getElementById("reserves").value = "24";
+                    break;
+                case "izanagis-burden":
+                    document.getElementById("reload-stat").value = "46";
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "5";
+                    break;
+                case "lord-of-wolves":
+                case "lord-of-wolves-released":
+                    document.getElementById("reload-stat").value = "64"; // check
+                    document.getElementById("magazine-size").value = "30";
+                    document.getElementById("reserves").value = "120";
+                    break;
+                case "fourth-horseman":
+                    document.getElementById("reload-stat").value = "82"; // check
+                    document.getElementById("magazine-size").value = "5";
+                    document.getElementById("reserves").value = "16";
+                    break;
+                case "prospector":
+                    document.getElementById("reload-stat").value = "14";
+                    document.getElementById("magazine-size").value = "8";
+                    document.getElementById("reserves").value = "18"; //with catalyst
+                    break;
+                case "colony":
+                    document.getElementById("reload-stat").value = "73"; // check
+                    document.getElementById("magazine-size").value = "7";
+                    document.getElementById("reserves").value = "18";
+                    break;
+                case "wardcliff-coil":
+                    document.getElementById("reload-stat").value = "37"; // check
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "5";
+                    break;
+                case "eyes-of-tomorrow":
+                    document.getElementById("reload-stat").value = "84"; // check
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "8";
+                    break;
+                case "truth":
+                    document.getElementById("reload-stat").value = "54"; // check
+                    document.getElementById("magazine-size").value = "3";
+                    document.getElementById("reserves").value = "6";
+                    break;
+                case "two-tailed-fox":
+                    document.getElementById("reload-stat").value = "45"; // check
+                    document.getElementById("magazine-size").value = "1"; // may make two later to make life easier
+                    document.getElementById("reserves").value = "5"; // may make 10 later
+                    break;
+                case "deathbringer":
+                    document.getElementById("reload-stat").value = "70";
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "7";
+                    break;
+                case "one-thousand-voices":
+                    document.getElementById("reload-stat").value = "37";
+                    document.getElementById("magazine-size").value = "4";
+                    document.getElementById("reserves").value = "8";
+                    break;
+                case "xenophage":
+                    document.getElementById("reload-stat").value = "38";
+                    document.getElementById("magazine-size").value = "13";
+                    document.getElementById("reserves").value = "28";
+                    break;
+                case "heir-apparent":
+                    document.getElementById("reload-stat").value = "55";
+                    document.getElementById("magazine-size").value = "200";
+                    document.getElementById("reserves").value = "500";
+                    break;
+                case "sleeper-simulant":
+                    document.getElementById("reload-stat").value = "52";
+                    document.getElementById("magazine-size").value = "3";
+                    document.getElementById("reserves").value = "13";
+                    break;
+                case "queenbreaker":
+                    document.getElementById("reload-stat").value = "64";
+                    document.getElementById("magazine-size").value = "5";
+                    document.getElementById("reserves").value = "18";
+                    break;
+                case "leviathans-breath":
+                    document.getElementById("reload-stat").value = "10";
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "15";
+                    break;
+                case "whisper-of-the-worm":
+                    document.getElementById("reload-stat").value = "42";
+                    document.getElementById("magazine-size").value = "18";
+                    document.getElementById("reserves").value = "18";
+                    break;
+                case "darci":
+                    document.getElementById("reload-stat").value = "46";
+                    document.getElementById("magazine-size").value = "7";
+                    document.getElementById("reserves").value = "8";
+                    break;
+                case "legend-of-acrius":
+                    document.getElementById("reload-stat").value = "28";
+                    document.getElementById("magazine-size").value = "6";
+                    document.getElementById("reserves").value = "10"; // may change with cata, double check
+                    break;
+                case "tractor-cannon":
+                    document.getElementById("reload-stat").value = "24";
+                    document.getElementById("magazine-size").value = "7";
+                    document.getElementById("reserves").value = "17";
+                    break;
+                case "lament":
+                    document.getElementById("reload-stat").value = "1";
+                    document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "55";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function update(type, reloadStat)
+        {
+            var type = document.getElementById("weapon-type").value;
+            var reloadStat = +document.getElementById("reload-stat").value;
+            var magazineSize = +document.getElementById("magazine-size").value;
+            var reserves = +document.getElementById("reserves").value;
+
+            if (reloadStat === "") return;
+            var values = getValues(type, reloadStat);
+            if (values === "undefined") return;
+
+            if (document.getElementById("full-court").checked && values.spikeDamage)
+            {
+                var fullCourtVal = document.getElementById("full-court-distance").value;
+                //values.damagePerShot *= (Math.min(fullCourtVal - 10, 40) * 0.00625) + 1; // THIS IS NOT FULLY CORRECT BECAUSE OF SPIKE GRENADES, REVISE LATER
+
+                values.damagePerShot = (values.damagePerShot - (values.spikeDamage * 2)) * ((Math.min(fullCourtVal - 10, 40) * 0.00625) + 1) + (values.spikeDamage * 2); // check this later
+            }
+
+            if (document.getElementById("spike-grenades").checked && values.spikeDamage)
+            {
+                values.damagePerShot += values.spikeDamage;
+            }
+
+            if (document.getElementById("vorpal-weapon").checked)
+            {
+                values.damagePerShot *= 1.15;
+            }
+
+            if (document.getElementById("firing-line").checked)
+            {
+                values.damagePerShot *= 1.2;
+            }
+
+            if (document.getElementById("boss-spec").checked)
+            {
+                values.damagePerShot *= 1.078;
+            }
+
+            if (!document.getElementById("kinetic").checked && !document.getElementById("kinetic").disabled)
+            {
+                values.damagePerShot /= 1.05; // NEED TO DISABLE IF EXOTIC
+            }
+
+            if (document.getElementById("whirlwind-blade").checked)
+            {
+                values.damagePerSwing *= 1.3; // may want to be more accurate later
+                values.heavyDamage *= 1.3;
+            }
+
+            if (values.burstDPS)
+            {
+                document.getElementById("reload-speed").innerHTML = "N/A";
+                document.getElementById("total-damage-partial").innerHTML = "N/A";
+                document.getElementById("total-damage-full").innerHTML = getTotalDamageFull(values.damagePerShot, reserves);
+                document.getElementById("time-to-empty-partial").innerHTML = "N/A";
+                document.getElementById("time-to-empty-full").innerHTML = "N/A";
+                document.getElementById("burst-dps").innerHTML = values.burstDPS;
+                document.getElementById("sustained-dps").innerHTML = values.sustainDPS;
+
+                //get rid of chart so as not to mislead
+                document.getElementById("myChart").style.display = "none";
+
+                return;
+            }
+            else if (type === "lament")
+            {
+                document.getElementById("reload-speed").innerHTML = "N/A";
+                document.getElementById("total-damage-partial").innerHTML = "N/A";
+                document.getElementById("total-damage-full").innerHTML = "N/A";
+                document.getElementById("time-to-empty-partial").innerHTML = "N/A";
+                document.getElementById("time-to-empty-full").innerHTML = "N/A";
+                //console.log(values.heavyDamage + values.firstChargedLightDamage + values.chargedLightDamage);
+                var totalDamage = values.heavyDamage + values.firstChargedLightDamage + (2 * values.chargedLightDamage);
+                var totalTime = values.timePerHeavy + (3 * values.timePerChargedLight);
+                document.getElementById("burst-dps").innerHTML = (totalDamage / totalTime).toFixed(2);
+                totalDamage += (5 * values.damagePerSwing) + values.chargedLightDamage;
+                totalTime += (5.5 * values.timePerSwing) + values.timePerChargedLight; // 5.5 is magic number for guard time, need to analyze properly
+                document.getElementById("sustained-dps").innerHTML = (totalDamage / totalTime).toFixed(2);
+
+                document.getElementById("myChart").style.display = "none";
+
+                return;
+            }
+            else if (values.damagePerSwing)
+            {
+                document.getElementById("reload-speed").innerHTML = "N/A";
+                document.getElementById("total-damage-partial").innerHTML = "N/A";
+                document.getElementById("total-damage-full").innerHTML = "N/A";
+                document.getElementById("time-to-empty-partial").innerHTML = "N/A";
+                document.getElementById("time-to-empty-full").innerHTML = "N/A";
+                document.getElementById("burst-dps").innerHTML = (values.heavyDamage / values.timePerHeavy).toFixed(2);
+                var totalDamage = (values.damagePerSwing * values.swingsPerCharge) + (values.heavyDamage * 2);
+                var totalTime = (values.timePerSwing * values.swingsPerCharge) + (values.timePerHeavy * 2);
+                document.getElementById("sustained-dps").innerHTML = (totalDamage / totalTime).toFixed(2);
+
+                document.getElementById("myChart").style.display = "none";
+
+                return;
+            }
+
+            if (document.getElementById("clown-cartridge").checked) // check this
+            {
+                var extraMagazineSize = magazineSize;
+                magazineSize = getClownCartridgeMagazineSize(magazineSize);
+                extraMagazineSize = magazineSize - extraMagazineSize;
+                if (document.getElementById("actium-war-rig").checked)
+                {
+                    magazineSize = getActiumWarRigMagazineSize(rateOfFire, magazineSize) + extraMagazineSize;
+                }
+            }
+            else if (document.getElementById("actium-war-rig").checked)
+            {
+                magazineSize = getActiumWarRigMagazineSize(rateOfFire, magazineSize);
+            }
+
+            if (document.getElementById("triple-tap").checked)
+            {
+                magazineSize = getTripleTapMagazine(magazineSize);
+            }
+
+            if (document.getElementById("fourth-times-the-charm").checked)
+            {
+                magazineSize = getFourthTimesTheCharmMagazine(magazineSize);
+            }
+
+            var reloadSpeed = values.reloadSpeed;
+            if (type.indexOf("shotgun") > -1 || type === "legend-of-acrius" || type === "fourth-horseman") //does not necessarily work for lightweight, rapid fire, and fourth horseman
+            {
+                if (reloadSpeed < 60 / values.rateOfFire) // check this later
+                {
+                    reloadSpeed = 0;
+                }
+                else if (false) //check if optimal to reload between each shot
+                {
+
+                }
+                else
+                {
+                    reloadSpeed *= (+magazineSize + 0.5); // 0.5 is an estimation based on first round, probably wrong, revise later
+                }
+            }
+
+            var hasChargeTime = false;
+
+            if (type.indexOf("fusion") > -1 || type === "one-thousand-voices" || type === "sleeper-simulant" || type === "queenbreaker")
+            {
+                hasChargeTime = true;
+            }
+
+            document.getElementById("reload-speed").innerHTML = reloadSpeed.toFixed(2) + " seconds";
+            document.getElementById("total-damage-partial").innerHTML = getTotalDamagePartial(values.damagePerShot, magazineSize, reserves);
+            document.getElementById("total-damage-full").innerHTML = getTotalDamageFull(values.damagePerShot, reserves);
+            document.getElementById("time-to-empty-partial").innerHTML = getTimeToEmptyPartial(values.rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime);
+            document.getElementById("time-to-empty-full").innerHTML = getTimeToEmptyFull(values.rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime);
+            if (type.indexOf("rocket") > -1) // need to include exotic rockets in here too
+            {
+                document.getElementById("burst-dps").innerHTML = "N/A";
+            }
+            else
+            {
+                document.getElementById("burst-dps").innerHTML = getBurstDPS(values.damagePerShot, values.rateOfFire).toFixed(2);
+            }
+            document.getElementById("sustained-dps").innerHTML = getSustainDPS(values.damagePerShot, values.rateOfFire, values.reloadSpeed, magazineSize, reserves, hasChargeTime).toFixed(2);
+
+
+            // make line chart
+            var myChart = document.getElementById("myChart");
+            myChart.style.display = "";
+            var ctx = myChart.getContext("2d");
+            var options = {
+                type: "line",
+                data: { 
+                    datasets:  [{
+                        label: "DPS",
+                        data: getChartData(values.damagePerShot, values.rateOfFire, values.reloadSpeed, magazineSize, reserves, hasChargeTime) 
+                    }]
+                } ,
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'linear',
+                        }]
+                    }
+                }
+            };
+            var myChartDone = new Chart(ctx, options);
+        }
+
+        function getValues(type, reloadStat)
+        {
+            var frameRate = 30;
+            var reloadSpeed;
+            var damagePerShot;
+            var rateOfFire;
+            var reloadScalarCap;
+            var a, b, c;
+            var reloadScalar = 1;
+            switch(type)
+            {
+                case "fusion-rapid-fire":
+                    reloadScalar = 0.8;
+                case "fusion-aggressive":
+                case "fusion-high-impact":
+                case "fusion-precision":
+                case "fusion-adaptive":
+                    a = 0.00227882;
+                    b = -0.705757;
+                    c = 91.6868;
+                    reloadScalarCap = 0.73;
+                    break;
+                case "one-thousand-voices":
+                    a = 0.00227882;
+                    b = -0.705757;
+                    c = 91.6868;
+                    reloadScalarCap = 0.73; // TEMP VALUES, NEED TO CHECK THEM, THINK CAP IS 1.4 SECONDS???
+                    break;
+                case "shotgun-rapid-fire": // note, need to research how this works exactly
+                    reloadScalar = 0.8;
+                case "shotgun-lightweight":
+                case "shotgun-aggressive":
+                case "shotgun-precision":
+                case "shotgun-slug":
+                case "legend-of-acrius": // check
+                case "fourth-horseman": // check
+                    a = 0.00237208;
+                    b = -0.519846;
+                    c = 42.4795;
+                    reloadScalarCap = 0.35;
+                    break;
+                case "lord-of-wolves-released":
+                    reloadStat = 100;
+                    reloadScalar = 0.85;
+                case "lord-of-wolves":
+                    a = 0;
+                    b = 0;
+                    c = 0;
+                    reloadScalarCap = 1; // ALL OF THIS IS TEMP, DO NOT KNOW YET
+                    break;
+                case "tractor-cannon":
+                    a = 0;
+                    b = 0;
+                    c = 0;
+                    reloadScalarCap = 1; // ALL OF THIS IS TEMP, DO NOT KNOW YET
+                    break;
+                case "sniper-rapid-fire":
+                    reloadScalar = 0.8;
+                case "sniper-adaptive":
+                case "sniper-aggressive":
+                case "darci": // check
+                case "whisper-of-the-worm": // check, although doesn't matter
+                case "cloudstrike":
+                    a = 0.00249814;
+                    b = -0.821771;
+                    c = 123.12;
+                    reloadScalarCap = 0.79;
+                    break;
+                case "izanagis-burden":
+                    a = 0.00249814;
+                    b = -0.821771;
+                    c = 123.12;
+                    reloadScalarCap = 1;
+                    break;
+                case "gl-lightweight":
+                case "gl-wave":
+                    a = 0.00268222;
+                    b = -0.775084;
+                    c = 104.714;
+                    reloadScalarCap = 0.83;
+                    break;
+                case "gl-rapid-fire":
+                    reloadScalar = 0.8;
+                case "gl-adaptive":
+                case "gl-precision":
+                case "prospector": // check
+                case "colony": // check
+                    a = 0.00279716;
+                    b = -0.885767;
+                    c = 132.442;
+                    reloadScalarCap = 0.82;
+                    break;
+                case "linear-fusion":
+                case "sleeper-simulant": // check, something about this is definitely wrong
+                case "queenbreaker": // check
+                    a = 0.00217949;
+                    b = -0.709871;
+                    c = 131.542;
+                    reloadScalarCap = 0.81;
+                    break;
+                case "mg-rapid-fire":
+                    reloadScalar = 0.8;
+                case "mg-high-impact":
+                case "mg-adaptive":
+                case "xenophage": // check
+                case "heir-apparent": // check
+                    a = 0.00335315;
+                    b = -1.08646;
+                    c = 194.189;
+                    reloadScalarCap = 0.35;
+                    break;
+                case "rocket-adaptive":
+                case "rocket-aggressive":
+                case "rocket-high-impact":
+                case "rocket-hakke":
+                case "wardcliff-coil": // check
+                case "eyes-of-tomorrow": // check
+                case "truth": // check
+                case "two-tailed-fox": // check
+                case "deathbringer": //check
+                    a = 0.00385034;
+                    b = -0.917237;
+                    c = 131.542;
+                    reloadScalarCap = 0.81;
+                    break;
+                case "sword-adaptive":
+                case "sword-vortex":
+                case "sword-caster":
+                case "sword-aggressive":
+                case "sword-lightweight":
+                case "lament":
+                    a = 0;
+                    b = 0;
+                    c = 0;
+                    reloadScalarCap = 0;
+                    break;
+                case "leviathans-breath":
+                    a = 0;
+                    b = 0;
+                    c = 0;
+                    reloadScalarCap = 0;
+                    break;
+                default:
+                    return "undefined";
+            }
+            switch(type)
+            {
+                case "fusion-rapid-fire": //double check rofs later
+                    damagePerShot = 11862;
+                    rateOfFire = 52.86; // this is temp
+                    break;
+                case "fusion-aggressive":
+                    damagePerShot = 13902;
+                    rateOfFire = 46.33; // this is temp
+                    break;
+                case "fusion-high-impact":
+                    damagePerShot = 14165;
+                    rateOfFire = 40.13;
+                    break;
+                case "fusion-precision":
+                    damagePerShot = 12796;
+                    rateOfFire = 43.64;
+                    break;
+                case "fusion-adaptive":
+                    damagePerShot = 12579;
+                    rateOfFire = 46.33;
+                    break;
+                case "one-thousand-voices":
+                    damagePerShot = 34182;
+                    rateOfFire = 31.58;
+                    break;
+                case "shotgun-rapid-fire":
+                    damagePerShot = 6230;
+                    rateOfFire = 140;
+                    break;
+                case "shotgun-lightweight":
+                    damagePerShot = 9128;
+                    rateOfFire = 80;
+                    break;
+                case "shotgun-aggressive":
+                    damagePerShot = 10520;
+                    rateOfFire = 55;
+                    break;
+                case "shotgun-precision":
+                    damagePerShot = 9055;
+                    rateOfFire = 65;
+                    break;
+                case "shotgun-slug":
+                    damagePerShot = 12959;
+                    rateOfFire = 65;
+                    break;
+                case "legend-of-acrius":
+                    damagePerShot = 21205;
+                    rateOfFire = 55;
+                    break;
+                case "fourth-horseman": //assumes all pellets / headshots, nearly impossible, need to ammend
+                    damagePerShot = 11256;
+                    rateOfFire = 360;
+                    break;
+                case "lord-of-wolves": //assumes all pellets / headshots
+                    damagePerShot = 1752;
+                    rateOfFire = 640;
+                    break;
+                case "lord-of-wolves-released":
+                    damagePerShot = 1844;
+                    rateOfFire = 750;
+                    break;
+                case "tractor-cannon":
+                    damagePerShot = 9240; // without weaken
+                    rateOfFire = 80;
+                    break;
+                case "sniper-rapid-fire":
+                    damagePerShot = 5762;
+                    rateOfFire = 140;
+                    break;
+                case "sniper-adaptive":
+                    damagePerShot = 7599;
+                    rateOfFire = 90;
+                    break;
+                case "sniper-aggressive":
+                    damagePerShot = 9326;
+                    rateOfFire = 72;
+                    break;
+                case "darci":
+                    damagePerShot = 8127;
+                    rateOfFire = 140;
+                    break;
+                case "izanagis-burden":
+                    damagePerShot = 36376;
+                    rateOfFire = 90;
+                    break;
+                case "whisper-of-the-worm":
+                    damagePerShot = 14937;
+                    rateOfFire = 72;
+                    break;
+                case "cloudstrike":
+                    damagePerShot = 5478;
+                    rateOfFire = 140;
+                    break;
+                case "gl-lightweight":
+                    damagePerShot = 8558;
+                    rateOfFire = 90;
+                    spikeDamage = 735;
+                    break;
+                case "gl-wave":
+                    damagePerShot = 1; // DO NOT HAVE THIS VALUE, DOES NOT WORK
+                    rateOfFire = 72;
+                    break;
+                case "gl-adaptive":
+                    damagePerShot = 9864;
+                    rateOfFire = 120;
+                    spikeDamage = 1063.5; // 50% of impact, hard coded for now, keep note
+                    break;
+                case "gl-precision":
+                    damagePerShot = 9862;
+                    rateOfFire = 100;
+                    spikeDamage = 974.5;
+                    break;
+                case "gl-rapid-fire":
+                    damagePerShot = 7899;
+                    rateOfFire = 150;
+                    spikeDamage = 995.5;
+                    break;
+                case "prospector":
+                    damagePerShot = 9297;
+                    rateOfFire = 165;
+                    break;
+                case "colony":
+                    damagePerShot = 7324;
+                    rateOfFire = 140;
+                    break;
+                case "linear-fusion":
+                    damagePerShot = 16107;
+                    rateOfFire = 60;
+                    break;
+                case "sleeper-simulant":
+                    damagePerShot = 26362;
+                    rateOfFire = 46;
+                    break;
+                case "queenbreaker":
+                    damagePerShot = 15353;
+                    rateOfFire = 55;
+                    break;
+                case "mg-rapid-fire":
+                    damagePerShot = 657;
+                    rateOfFire = 900;
+                    break;
+                case "mg-high-impact":
+                    damagePerShot = 1323;
+                    rateOfFire = 360;
+                    break;
+                case "mg-adaptive":
+                    damagePerShot = 1146;
+                    rateOfFire = 450;
+                    break;
+                case "xenophage":
+                    damagePerShot = 9495;
+                    rateOfFire = 90;
+                    break;
+                case "heir-apparent":
+                    damagePerShot = 916;
+                    rateOfFire = 900;
+                    break;
+                case "rocket-adaptive":
+                    damagePerShot = 28326;
+                    rateOfFire = 20;
+                    break;
+                case "rocket-aggressive":
+                    damagePerShot = 28326;
+                    rateOfFire = 25;
+                    break;
+                case "rocket-high-impact":
+                    damagePerShot = 28326;
+                    rateOfFire = 15;
+                    break;
+                case "rocket-hakke":
+                    damagePerShot = 28326;
+                    rateOfFire = 15;
+                    break;
+                case "wardcliff-coil":
+                    damagePerShot = 37784;
+                    rateOfFire = 60; //this is how long it takes for the burst to finish, maybe use haschargetime? +0.7 written in
+                    break;
+                case "eyes-of-tomorrow":
+                    damagePerShot = 32736; //against normal bosses, strike bosses take 2x
+                    rateOfFire = 20; //don't know if I need this
+                    break;
+                case "truth":
+                    damagePerShot = 22037;
+                    rateOfFire = 15;
+                    break;
+                case "two-tailed-fox":
+                    damagePerShot = 38259; // need to check how rof works here, +0.35 written in, probably duration between shots
+                    rateOfFire = 40;
+                    break;
+                case "deathbringer":
+                    damagePerShot = 61369;
+                    rateOfFire = 15;
+                    break;
+                case "sword-adaptive":
+                    return {
+                        damagePerSwing: 7315,
+                        timePerSwing: 0.36,
+                        heavyDamage: 24995,
+                        swingsPerCharge: 12, //need to check all of this later
+                        timePerHeavy: 0.825
+                    };
+                case "sword-vortex":
+                    return {
+                        damagePerSwing: 6218,
+                        timePerSwing: 0.36,
+                        heavyDamage: 25975,
+                        swingsPerCharge: 8,
+                        timePerHeavy: 1.37
+                    };
+                case "sword-caster":
+                    return {
+                        damagePerSwing: 6386,
+                        timePerSwing: 0.36,
+                        heavyDamage: 18627,
+                        swingsPerCharge: 12, //need to check all of this later
+                        timePerHeavy: 0.825 // don't know, fix later
+                    };
+                case "sword-lightweight":
+                    return {
+                        damagePerSwing: 6218,
+                        timePerSwing: 0.358,
+                        heavyDamage: 18652,
+                        swingsPerCharge: 8, //temp, fix later
+                        timePerHeavy: 0.3 // temp, fix later
+                    };
+                case "sword-aggressive":
+                    return {
+                        damagePerSwing: 9397,
+                        timePerSwing: 0.46,
+                        heavyDamage: 28192,
+                        swingsPerCharge: 8, //temp, fix later
+                        timePerHeavy: 0.3 // temp, fix later
+                    };
+                case "lament":
+                    return {
+                        damagePerSwing: 8300, // these times are probably wrong, need to double check thoroughly
+                        timePerSwing: 0.36,
+                        heavyDamage: 54637,
+                        swingsPerCharge: 6,
+                        timePerHeavy: 3.36,
+                        firstChargedLightDamage: 12450,
+                        chargedLightDamage: 15216,
+                        timePerChargedLight: 0.69
+                    };
+                case "leviathans-breath":
+                    damagePerShot = 24259;
+                    rateOfFire = 22;
+                    return {
+                        damagePerShot: damagePerShot,
+                        burstDPS: getBurstDPS(damagePerShot, rateOfFire),
+                        sustainDPS: getBurstDPS(damagePerShot, rateOfFire)
+                    };
+                default:
+                    return "undefined";
+            }
+
+            if (document.getElementById("double-loader-mod").checked)
+            {
+                reloadStat += 15;
+                reloadScalar *= 0.85;
+            }
+            else if (document.getElementById("single-loader-mod").checked)
+            {
+                reloadStat += 10;
+                reloadScalar *= 0.85;
+            }
+            if (document.getElementById("field-prep").checked)
+            {
+                reloadStat += 45;
+                reloadScalar *= 0.8;
+            }
+            if (document.getElementById("lunafaction-boots").checked)
+            {
+                reloadStat = 100;
+                reloadScalar *= 0.9;
+            }
+            if (document.getElementById("alloy-mag").checked)
+            {
+                reloadScalar *= 0.85;
+            }
+
+            console.log(reloadStat);
+            reloadStat = Math.min(100, reloadStat);
+            reloadSpeed = (((a * reloadStat * reloadStat) + (b * reloadStat) + c) * reloadScalar) / frameRate;
+            console.log(reloadSpeed);
+            reloadSpeedCap = (((a * 10000) + (b * 100) + c) * reloadScalarCap) / frameRate;
+            reloadSpeed = Math.max(reloadSpeed, reloadSpeedCap);
+
+            return {
+                reloadSpeed: reloadSpeed, 
+                damagePerShot: damagePerShot, 
+                rateOfFire: rateOfFire
+            };
+        }
+
+        function getBurstDPS(damagePerShot, rateOfFire)
+        {
+            return damagePerShot * (rateOfFire / 60);
+        }
+
+        function getTotalDamagePartial(damagePerShot, magazineSize, reserves)
+        {
+            return damagePerShot * (reserves - (reserves % magazineSize));
+        }
+
+        function getTotalDamageFull(damagePerShot, reserves)
+        {
+            return damagePerShot * reserves;
+        }
+
+        function getSustainDPS(damagePerShot, rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime)
+        {
+            var totalDamage = getTotalDamagePartial(damagePerShot, magazineSize, reserves);
+            var totalTime = getTimeToEmptyPartial(rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime);
+            
+            return totalDamage / totalTime;
+        }
+
+        function getTimeToEmptyFull(rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime)
+        {
+            /*if (hasChargeTime) magazineSize++;
+            var timeToEmptyLastMag = Math.max(0, ((reserves % magazineSize) - 1) / (rateOfFire / 60));
+            if (hasChargeTime) magazineSize--;*/
+            var timeToEmptyLastMag = Math.max(0, ((reserves % magazineSize) - 1 + hasChargeTime) / (rateOfFire / 60)); // test this
+            var finalReloadSpeed = reloadSpeed;
+            if (timeToEmptyLastMag === 0 && reserves % magazineSize === 0) // TESTING SECOND CONDITION
+            {
+                finalReloadSpeed = 0;
+            }
+            return getTimeToEmptyPartial(rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime) + timeToEmptyLastMag + finalReloadSpeed;
+        }
+
+        function getTimeToEmptyPartial(rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime)
+        {
+            if (hasChargeTime) magazineSize++;
+            var timeToEmpty = (magazineSize - 1) / (rateOfFire / 60);
+            if (hasChargeTime) magazineSize--;
+            var numberOfReloads = Math.floor(reserves / magazineSize) - 1;
+            var totalReloadTime = numberOfReloads * reloadSpeed;
+            var totalTimeToEmpty = timeToEmpty * (numberOfReloads + 1);
+            var totalTime = totalReloadTime + totalTimeToEmpty;
+
+            return totalTime;
+        }
+
+        function getClownCartridgeMagazineSize(magazineSize) // note, this is a best estimate without perfect information
+        {
+            var low = Math.ceil(magazineSize * 1.1);
+            var high = Math.ceil(magazineSize * 1.5);
+            return Math.round(low + high) / 2;
+        }
+
+        function getActiumWarRigMagazineSize(rateOfFire, magazineSize, currentMagazineSize = magazineSize) // DOES NOT WORK WITH CLOWN CARTRIDGE, FUCK OFF
+        {
+            var timeToEmpty = (currentMagazineSize - 1) / (rateOfFire / 60);
+            var numberOfRefills = Math.floor(timeToEmpty / 1.5);
+            var previousMagazineSize = currentMagazineSize;
+            currentMagazineSize = magazineSize + (numberOfRefills * Math.ceil(magazineSize * 0.1));
+            if (previousMagazineSize >= currentMagazineSize)
+            {
+                return currentMagazineSize;
+            }
+            return getActiumWarRigMagazineSize(rateOfFire, magazineSize, currentMagazineSize);
+        }
+
+        function getTripleTapMagazine(magazineSize)
+        {
+            return Math.floor((magazineSize - 1) / 2) + magazineSize;
+        }
+
+        function getFourthTimesTheCharmMagazine(magazineSize)
+        {
+            if (magazineSize < 4) return magazineSize;
+            return Math.floor((magazineSize - 2) / 2) * 2 + magazineSize;
+        }
+
+        function getChartData(damagePerShot, rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime)
+        {
+            if (hasChargeTime) magazineSize++;
+            var timeToEmpty = (magazineSize - 1) / (rateOfFire / 60);
+            if (hasChargeTime) magazineSize--;
+            var fullReloadCycleTime = timeToEmpty + reloadSpeed;
+            var arr = [{x: 0, y: 49999}];
+            if (hasChargeTime)
+            {
+                arr[0] = {x: 0, y: 0};
+            }
+
+            for (var t = 0.25; t <= 30; t += 0.25)
+            {
+                var fullReloadCycles = Math.floor(t / fullReloadCycleTime);
+
+                var remainingTime = t - (fullReloadCycleTime * fullReloadCycles);
+
+                var remainingShots = Math.min(magazineSize - 1, Math.floor(remainingTime * (rateOfFire / 60)));
+
+                var totalDamage = (remainingShots + 1 + (fullReloadCycles * magazineSize)) * damagePerShot;
+
+                totalDamage = Math.min(totalDamage, reserves * damagePerShot);
+
+                arr.push({x: t, y: totalDamage / t});
+            }
+
+            return arr;
+        }
+
+        function disableElement(el)
+        {
+            el.disabled = true;
+            while(el.nodeName !== "BR")
+            {
+                el.style.display = "none";
+                el = el.nextElementSibling;
+            }
+            el.style.display = "none";
+        }
+
+        function enableElement(el)
+        {
+            el.disabled = false;
+            while(el.nodeName !== "BR")
+            {
+                el.style.display = "";
+                el = el.nextElementSibling;
+            }
+            el.style.display = "";
+        }
+
+    </script>
+</body>
 </html>
