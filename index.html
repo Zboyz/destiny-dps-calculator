@@ -216,7 +216,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
 
         selectWeapon("xenophage");
 
-        function selectWeapon(type) // need to add legendary cases
+        function selectWeapon(type)
         {
             document.querySelectorAll("input[type=checkbox]").forEach(function(el){
                 disableElement(el);
@@ -260,7 +260,12 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     break;
                 case "gl-wave":
                 case "gl-lightweight":
-                    //may want kinetic? not sure what the values are now, will need to disable after somehow
+                    enableElement(document.getElementById("kinetic"));
+                    enableElement(document.getElementById("field-prep"));
+                    enableElement(document.getElementById("vorpal-weapon"));
+                    enableElement(document.getElementById("spike-grenades"));
+                    enableElement(document.getElementById("boss-spec"));
+                    break;
                 case "gl-adaptive":
                 case "gl-rapid-fire":
                 case "gl-precision":
@@ -398,8 +403,8 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     break;
                 case "whisper-of-the-worm":
                     document.getElementById("reload-stat").value = "42";
-                    document.getElementById("magazine-size").value = "18";
-                    document.getElementById("reserves").value = "18";
+                    document.getElementById("magazine-size").value = "26";
+                    document.getElementById("reserves").value = "26";
                     break;
                 case "darci":
                     document.getElementById("reload-stat").value = "46";
@@ -474,7 +479,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
 
             if (!document.getElementById("kinetic").checked && !document.getElementById("kinetic").disabled)
             {
-                values.damagePerShot /= 1.05; // NEED TO DISABLE IF EXOTIC
+                values.damagePerShot /= 1.05; // disable if exotic, I believe this is implemented
             }
 
             if (document.getElementById("whirlwind-blade").checked)
@@ -510,7 +515,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                 var totalTime = values.timePerHeavy + (3 * values.timePerChargedLight);
                 document.getElementById("burst-dps").innerHTML = (totalDamage / totalTime).toFixed(2);
                 totalDamage += (5 * values.damagePerSwing) + values.chargedLightDamage;
-                totalTime += (5.5 * values.timePerSwing) + values.timePerChargedLight; // 5.5 is magic number for guard time, need to analyze properly
+                totalTime += (5.5 * values.timePerSwing) + values.timePerChargedLight; // guard time is a mess depending on whether swing is 1, 2, 3, or 4, basically impossible to write this
                 document.getElementById("sustained-dps").innerHTML = (totalDamage / totalTime).toFixed(2);
 
                 document.getElementById("myChart").style.display = "none";
@@ -588,7 +593,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
             document.getElementById("total-damage-full").innerHTML = getTotalDamageFull(values.damagePerShot, reserves);
             document.getElementById("time-to-empty-partial").innerHTML = getTimeToEmptyPartial(values.rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime);
             document.getElementById("time-to-empty-full").innerHTML = getTimeToEmptyFull(values.rateOfFire, reloadSpeed, magazineSize, reserves, hasChargeTime);
-            if (type.indexOf("rocket") > -1) // need to include exotic rockets in here too
+            if (type.indexOf("rocket") > -1 || magazineSize < 2) // check this
             {
                 document.getElementById("burst-dps").innerHTML = "N/A";
             }
@@ -600,6 +605,10 @@ window.onerror = function (errorMsg, url, lineNumber) {
 
 
             // make line chart
+            for (var i = 0; i < Chart.instances.length; i++)
+            {
+                Chart.instances[i].destroy(); // THIS DOES NOT WORK YET, NEED TO ADDRESS TO GET FLICKERING ISSUES TO STOP
+            }
             var myChart = document.getElementById("myChart");
             myChart.style.display = "";
             var ctx = myChart.getContext("2d");
@@ -794,31 +803,31 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 31.58;
                     break;
                 case "shotgun-rapid-fire":
-                    damagePerShot = 6230;
+                    damagePerShot = 6903;
                     rateOfFire = 140;
                     break;
                 case "shotgun-lightweight":
-                    damagePerShot = 9128;
+                    damagePerShot = 10114;
                     rateOfFire = 80;
                     break;
                 case "shotgun-aggressive":
-                    damagePerShot = 10520;
+                    damagePerShot = 11656;
                     rateOfFire = 55;
                     break;
                 case "shotgun-precision":
-                    damagePerShot = 9055;
+                    damagePerShot = 10033;
                     rateOfFire = 65;
                     break;
                 case "shotgun-slug":
-                    damagePerShot = 12959;
+                    damagePerShot = 11984;
                     rateOfFire = 65;
                     break;
                 case "legend-of-acrius":
-                    damagePerShot = 21205;
+                    damagePerShot = 24773;
                     rateOfFire = 55;
                     break;
                 case "fourth-horseman": //assumes all pellets / headshots, nearly impossible, need to ammend
-                    damagePerShot = 11256;
+                    damagePerShot = 12456;
                     rateOfFire = 360;
                     break;
                 case "lord-of-wolves": //assumes all pellets / headshots
@@ -830,7 +839,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 750;
                     break;
                 case "tractor-cannon":
-                    damagePerShot = 9240; // without weaken
+                    damagePerShot = 9490; // without weaken
                     rateOfFire = 80;
                     break;
                 case "sniper-rapid-fire":
@@ -846,7 +855,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 72;
                     break;
                 case "darci":
-                    damagePerShot = 8127 * 1.2; // temporary
+                    damagePerShot = 9787;
                     rateOfFire = 140;
                     break;
                 case "izanagis-burden":
@@ -854,7 +863,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 90;
                     break;
                 case "whisper-of-the-worm":
-                    damagePerShot = 14937 * 1.1; // temporary
+                    damagePerShot = 16577;
                     rateOfFire = 72;
                     break;
                 case "cloudstrike":
@@ -894,15 +903,15 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     rateOfFire = 140;
                     break;
                 case "linear-fusion":
-                    damagePerShot = 16107 * 1.1; // temporary
+                    damagePerShot = 17844;
                     rateOfFire = 60;
                     break;
                 case "sleeper-simulant":
-                    damagePerShot = 26362 * 1.06 * 1.1; // temporary
+                    damagePerShot = 33066;
                     rateOfFire = 46;
                     break;
                 case "queenbreaker":
-                    damagePerShot = 15353 * 1.1; // temporary
+                    damagePerShot = 19466;
                     rateOfFire = 55;
                     break;
                 case "mg-rapid-fire":
@@ -961,6 +970,10 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     damagePerShot = 61369;
                     rateOfFire = 15;
                     break;
+                case "gjallarhorn":
+                    damagePerShot = 33414;
+                    rateOfFire = 45;
+                    break;
                 case "sword-adaptive":
                     return {
                         damagePerSwing: 7315,
@@ -1014,7 +1027,7 @@ window.onerror = function (errorMsg, url, lineNumber) {
                     };
                 case "leviathans-breath":
                     damagePerShot = 24259;
-                    rateOfFire = 22;
+                    rateOfFire = 35;
                     return {
                         damagePerShot: damagePerShot,
                         burstDPS: getBurstDPS(damagePerShot, rateOfFire),
