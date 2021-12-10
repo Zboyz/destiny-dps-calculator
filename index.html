@@ -96,6 +96,7 @@
             <option value="truth">Truth</option>
             <option value="two-tailed-fox">Two-Tailed Fox</option>
             <option value="deathbringer">Deathbringer</option>
+            <option value="gjallarhorn">Gjallarhorn</option>
         </optgroup>
         <optgroup label="Swords">
             <option value="sword-adaptive">Adaptive Sword</option>
@@ -369,6 +370,11 @@ window.onerror = function (errorMsg, url, lineNumber) {
                 case "deathbringer":
                     document.getElementById("reload-stat").value = "70";
                     document.getElementById("magazine-size").value = "1";
+                    document.getElementById("reserves").value = "7";
+                    break;
+                case "gjallarhorn":
+                    document.getElementById("reload-stat").value = "70";
+                    document.getElementById("magazine-size").value = "2";
                     document.getElementById("reserves").value = "7";
                     break;
                 case "one-thousand-voices":
@@ -750,7 +756,8 @@ window.onerror = function (errorMsg, url, lineNumber) {
                 case "eyes-of-tomorrow": // check
                 case "truth": // check
                 case "two-tailed-fox": // check
-                case "deathbringer": //check
+                case "deathbringer": // check
+                case "gjallarhorn": // check
                     a = 0.00385034;
                     b = -0.917237;
                     c = 131.542;
